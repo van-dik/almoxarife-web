@@ -1,0 +1,169 @@
+@page "/solicitacoes"
+@using SistemaAlmoxarifado.Models
+@using SistemaAlmoxarifado.Services
+@inject SolicitacaoService SolicitacaoService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Solicitações</PageTitle>
+
+<h3>Solicitações de Materiais</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="NovaSolicitacao">Nova Solicitação</button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label>Filtrar por Status:</label>
+        <select class="form-select" @onchange="FiltrarPorStatus">
+            <option value="">Todos</option>
+            <option value="0">Pendente</option>
+            <option value="1">Aprovado</option>
+            <option value="2">Negado</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Filtrar por Setor:</label>
+        <select class="form-select" @onchange="FiltrarPorSetor">
+            <option value="">Todos</option>
+            @foreach (var setor in setores)
+            {
+                <option value="@setor">@setor</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (solicitacoes == null)
+{
+    <p>Carregando...</p>
+}
+else if (!solicitacoes.Any())
+{
+    <p>Nenhuma solicitação encontrada.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Solicitante</th>
+                <th>Setor</th>
+                <th>Item</th>
+                <th>Quantidade</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var solicitacao in solicitacoes)
+            {
+                <tr>
+                    <td>@solicitacao.DataSolicitacao.ToString("dd/MM/yyyy")</td>
+                    <td>@solicitacao.NomeSolicitante</td>
+                    <td>@solicitacao.Setor</td>
+                    <td>@solicitacao.ItemSolicitado</td>
+                    <td>@solicitacao.Quantidade</td>
+                    <td>
+                        <span class="badge @ObterClasseStatus(solicitacao.Status)">
+                            @solicitacao.Status
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-info" @onclick="() => Editar(solicitacao.Id)">Editar</button>
+                        @if (solicitacao.Status == StatusSolicitacao.Pendente)
+                        {
+                            <button class="btn btn-sm btn-success" @onclick="() => AprovarSolicitacao(solicitacao.Id)">Aprovar</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => NegarSolicitacao(solicitacao.Id)">Negar</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Solicitacao>? solicitacoes;
+    private List<string> setores = new();
+    private string? filtroStatus;
+    private string? filtroSetor;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarDados();
+    }
+
+    private async Task CarregarDados()
+    {
+        solicitacoes = await SolicitacaoService.ObterTodasAsync();
+        setores = await SolicitacaoService.ObterSetoresAsync();
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        if (solicitacoes == null) return;
+
+        var resultado = solicitacoes.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(filtroStatus) && int.TryParse(filtroStatus, out int statusInt))
+        {
+            resultado = resultado.Where(s => (int)s.Status == statusInt);
+        }
+
+        if (!string.IsNullOrEmpty(filtroSetor))
+        {
+            resultado = resultado.Where(s => s.Setor == filtroSetor);
+        }
+
+        solicitacoes = resultado.ToList();
+    }
+
+    private async Task FiltrarPorStatus(ChangeEventArgs e)
+    {
+        filtroStatus = e.Value?.ToString();
+        await CarregarDados();
+    }
+
+    private async Task FiltrarPorSetor(ChangeEventArgs e)
+    {
+        filtroSetor = e.Value?.ToString();
+        await CarregarDados();
+    }
+
+    private async Task AprovarSolicitacao(int id)
+    {
+        await SolicitacaoService.AtualizarStatusAsync(id, StatusSolicitacao.Aprovado);
+        await CarregarDados();
+    }
+
+    private async Task NegarSolicitacao(int id)
+    {
+        await SolicitacaoService.AtualizarStatusAsync(id, StatusSolicitacao.Negado);
+        await CarregarDados();
+    }
+
+    private void NovaSolicitacao()
+    {
+        Navigation.NavigateTo("/solicitacao/nova");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/solicitacao/editar/{id}");
+    }
+
+    private string ObterClasseStatus(StatusSolicitacao status)
+    {
+        return status switch
+        {
+            StatusSolicitacao.Pendente => "bg-warning",
+            StatusSolicitacao.Aprovado => "bg-success",
+            StatusSolicitacao.Negado => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

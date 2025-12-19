@@ -1,0 +1,89 @@
+@page "/solicitacao/editar/{id:int}"
+@using SistemaAlmoxarifado.Models
+@using SistemaAlmoxarifado.Services
+@inject SolicitacaoService SolicitacaoService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Editar Solicitação</PageTitle>
+
+<h3>Editar Solicitação</h3>
+
+@if (solicitacao == null)
+{
+    <p>Carregando...</p>
+}
+else
+{
+    <EditForm Model="solicitacao" OnValidSubmit="Salvar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Nome do Solicitante:</label>
+            <InputText class="form-control" @bind-Value="solicitacao.NomeSolicitante" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Setor:</label>
+            <InputText class="form-control" @bind-Value="solicitacao.Setor" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Item Solicitado:</label>
+            <InputText class="form-control" @bind-Value="solicitacao.ItemSolicitado" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Quantidade:</label>
+            <InputNumber class="form-control" @bind-Value="solicitacao.Quantidade" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Status:</label>
+            <InputSelect class="form-select" @bind-Value="solicitacao.Status">
+                <option value="@StatusSolicitacao.Pendente">Pendente</option>
+                <option value="@StatusSolicitacao.Aprovado">Aprovado</option>
+                <option value="@StatusSolicitacao.Negado">Negado</option>
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="button" class="btn btn-secondary" @onclick="Voltar">Cancelar</button>
+            <button type="button" class="btn btn-danger" @onclick="Excluir">Excluir</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Solicitacao? solicitacao;
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitacao = await SolicitacaoService.ObterPorIdAsync(Id);
+    }
+
+    private async Task Salvar()
+    {
+        if (solicitacao != null)
+        {
+            await SolicitacaoService.AtualizarAsync(solicitacao);
+            Navigation.NavigateTo("/solicitacoes");
+        }
+    }
+
+    private async Task Excluir()
+    {
+        await SolicitacaoService.ExcluirAsync(Id);
+        Navigation.NavigateTo("/solicitacoes");
+    }
+
+    private void Voltar()
+    {
+        Navigation.NavigateTo("/solicitacoes");
+    }
+}

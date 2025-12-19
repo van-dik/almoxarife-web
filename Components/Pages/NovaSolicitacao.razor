@@ -1,0 +1,55 @@
+@page "/solicitacao/nova"
+@using SistemaAlmoxarifado.Models
+@using SistemaAlmoxarifado.Services
+@inject SolicitacaoService SolicitacaoService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Nova Solicitação</PageTitle>
+
+<h3>Nova Solicitação de Material</h3>
+
+<EditForm Model="solicitacao" OnValidSubmit="Salvar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Nome do Solicitante:</label>
+        <InputText class="form-control" @bind-Value="solicitacao.NomeSolicitante" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Setor:</label>
+        <InputText class="form-control" @bind-Value="solicitacao.Setor" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Item Solicitado:</label>
+        <InputText class="form-control" @bind-Value="solicitacao.ItemSolicitado" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Quantidade:</label>
+        <InputNumber class="form-control" @bind-Value="solicitacao.Quantidade" />
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <button type="button" class="btn btn-secondary" @onclick="Voltar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private Solicitacao solicitacao = new();
+
+    private async Task Salvar()
+    {
+        await SolicitacaoService.CriarAsync(solicitacao);
+        Navigation.NavigateTo("/solicitacoes");
+    }
+
+    private void Voltar()
+    {
+        Navigation.NavigateTo("/solicitacoes");
+    }
+}
