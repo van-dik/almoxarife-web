@@ -19,8 +19,8 @@ Primeiro precisa ter o .NET 8 SDK instalado e um SQL Server rodando (pode ser Lo
 
 1. Clone o repositório
 ```bash
-git clone https://github.com/seu-usuario/almoxarife-web.git
-cd almoxarife-web/almoxarife-web
+git clone https://github.com/van-dik/almoxarife-web.git
+cd almoxarife-web
 ```
 
 2. Ajusta a connection string no `appsettings.json` se necessário
@@ -62,14 +62,3 @@ Projeto foi feito pra ser simples e direto, sem frescura no visual. O foco era t
 
 Se tiver algum problema com SQL Server, da pra mudar pra SQLite facilmente, só trocar o provider no `Program.cs` e a connection string.
 
-## Melhorias futuras (talvez)
-
-- Adicionar autenticação/login
-- Dashboard com estatísticas
-- Exportar relatórios
-- Histórico de alterações
-- Notificações por email
-
----
-
-Projeto criado pra estudo e pode ser usado como base pra outros sistemas parecidos.
