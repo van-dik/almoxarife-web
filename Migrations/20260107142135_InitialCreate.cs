@@ -15,14 +15,14 @@ namespace SistemaAlmoxarifado.Migrations
                 name: "Solicitacoes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NomeSolicitante = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Setor = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ItemSolicitado = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantidade = table.Column<int>(type: "int", nullable: false),
-                    DataSolicitacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    NomeSolicitante = table.Column<string>(type: "TEXT", nullable: false),
+                    Setor = table.Column<string>(type: "TEXT", nullable: false),
+                    ItemSolicitado = table.Column<string>(type: "TEXT", nullable: false),
+                    Quantidade = table.Column<int>(type: "INTEGER", nullable: false),
+                    DataSolicitacao = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
